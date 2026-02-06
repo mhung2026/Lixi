@@ -66,8 +66,7 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
   }
 
   function openMoMoTransfer(playerPhone: string, playerName: string, amount: number) {
-    const message = `Li xi Tet - ${playerName} - ${room!.host_name}`;
-    const momoUrl = getMoMoLink(playerPhone, amount, message);
+    const momoUrl = getMoMoLink(playerPhone, amount);
     setMomoQR({ url: momoUrl, playerName, amount });
   }
 
@@ -213,7 +212,7 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
                     {canTransfer && (
                       <div className="flex gap-2 mt-2">
                         <a
-                          href={getMoMoLink(playerPhone, prizeValue, `Li xi Tet - ${result.players?.name} - ${room.host_name}`)}
+                          href={getMoMoLink(playerPhone, prizeValue)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-pink-500 text-white font-bold text-xs hover:bg-pink-600 transition-all active:scale-95"

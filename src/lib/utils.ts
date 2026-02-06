@@ -36,20 +36,11 @@ export function getShareUrl(code: string): string {
 
 /**
  * Generate MoMo deep link for transferring money
- * Format: https://nhantien.momo.vn/<phone>/<amount>/<message>
- * MoMo requires simple ASCII message without special chars
+ * Format: https://nhantien.momo.vn/<phone>/<amount>
  */
-export function getMoMoLink(phone: string, amount: number, message: string): string {
+export function getMoMoLink(phone: string, amount: number): string {
   const cleanPhone = phone.replace(/[^\d]/g, '');
-  // Remove diacritics, keep only alphanumeric and spaces, replace spaces with dashes
-  const cleanMessage = message
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .trim()
-    .replace(/\s+/g, '-');
-  return `https://nhantien.momo.vn/${cleanPhone}/${amount}/${cleanMessage}`;
+  return `https://nhantien.momo.vn/${cleanPhone}/${amount}`;
 }
 
 /**
