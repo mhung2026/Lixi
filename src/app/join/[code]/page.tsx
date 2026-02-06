@@ -26,6 +26,15 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
 
+  // Load saved player info from localStorage
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('player_info') || '{}');
+      if (saved.name) setPlayerName(saved.name);
+      if (saved.phone) setPlayerPhone(saved.phone);
+    } catch { /* ignore */ }
+  }, []);
+
   useEffect(() => {
     async function fetchRoom() {
       try {
@@ -69,6 +78,12 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
       }
 
       const data = await res.json();
+
+      // Save player info for next time
+      try {
+        localStorage.setItem('player_info', JSON.stringify({ name: playerName.trim(), phone: playerPhone || '' }));
+      } catch { /* ignore */ }
+
       router.push(`/play/${code}/${data.player_id}`);
     } catch {
       setError('Lỗi kết nối');
