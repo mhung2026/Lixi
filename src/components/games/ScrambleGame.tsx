@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SCRAMBLE_SENTENCES } from '@/lib/gameData';
 
 interface ScrambleGameProps {
+  customSentences?: string[];
   onComplete: () => void;
 }
 
@@ -19,11 +20,12 @@ function shuffle<T>(arr: T[]): T[] {
 
 const TIMER_SECONDS = 30;
 
-export default function ScrambleGame({ onComplete }: ScrambleGameProps) {
-  // Pick a random sentence once on mount
+export default function ScrambleGame({ customSentences, onComplete }: ScrambleGameProps) {
+  // Pick a random sentence: use custom if provided, else default
   const sentence = useMemo(() => {
-    return SCRAMBLE_SENTENCES[Math.floor(Math.random() * SCRAMBLE_SENTENCES.length)];
-  }, []);
+    const pool = customSentences && customSentences.length > 0 ? customSentences : SCRAMBLE_SENTENCES;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }, [customSentences]);
 
   const correctWords = useMemo(() => sentence.split(' '), [sentence]);
 

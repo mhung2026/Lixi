@@ -8,10 +8,12 @@ import QuizGame from './QuizGame';
 
 interface GameSelectorProps {
   enabledGames: GameType[];
+  customSentences?: string[];
+  customQuestions?: { question: string; answer: string }[];
   onComplete: () => void;
 }
 
-export default function GameSelector({ enabledGames, onComplete }: GameSelectorProps) {
+export default function GameSelector({ enabledGames, customSentences, customQuestions, onComplete }: GameSelectorProps) {
   const selectedGame = useMemo(() => {
     const games = enabledGames.length > 0 ? enabledGames : ['shake'] as GameType[];
     return games[Math.floor(Math.random() * games.length)];
@@ -19,9 +21,9 @@ export default function GameSelector({ enabledGames, onComplete }: GameSelectorP
 
   switch (selectedGame) {
     case 'scramble':
-      return <ScrambleGame onComplete={onComplete} />;
+      return <ScrambleGame customSentences={customSentences} onComplete={onComplete} />;
     case 'quiz':
-      return <QuizGame onComplete={onComplete} />;
+      return <QuizGame customQuestions={customQuestions} onComplete={onComplete} />;
     case 'shake':
     default:
       return <ShakeGame onComplete={onComplete} />;

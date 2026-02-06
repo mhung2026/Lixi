@@ -1,15 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+interface MyRoom {
+  code: string;
+  host_name: string;
+  created_at: string;
+}
+
+function getMyRooms(): MyRoom[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem('my_rooms') || '[]');
+  } catch {
+    return [];
+  }
+}
 
 export default function LandingPage() {
   const [roomCode, setRoomCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [shakeError, setShakeError] = useState(false);
+  const [myRooms, setMyRooms] = useState<MyRoom[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    setMyRooms(getMyRooms());
+  }, []);
 
   async function handleJoin(e: React.FormEvent) {
     e.preventDefault();
@@ -102,6 +122,30 @@ export default function LandingPage() {
           {loading ? '⏳ Đang kiểm tra...' : '🚀 THAM GIA'}
         </button>
       </form>
+
+      {/* My Rooms */}
+      {myRooms.length > 0 && (
+        <div className="w-full max-w-xs mt-8 animate-slide-up">
+          <p className="text-red-200/60 text-xs font-bold mb-2 text-left">🏠 Phòng bạn đã tạo</p>
+          <div className="space-y-2">
+            {myRooms.slice(0, 5).map((room) => (
+              <Link
+                key={room.code}
+                href={`/room/${room.code}`}
+                className="flex items-center justify-between glass-card rounded-xl py-2.5 px-4 hover:bg-amber-100/80 transition-all"
+              >
+                <div>
+                  <span className="text-amber-900 font-bold text-sm">{room.host_name}</span>
+                  <span className="text-amber-500 text-xs ml-2">#{room.code}</span>
+                </div>
+                <span className="text-amber-400 text-xs">
+                  {new Date(room.created_at).toLocaleDateString('vi-VN')}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* History Link */}
       <Link

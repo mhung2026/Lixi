@@ -21,6 +21,8 @@ interface PlayerInfo {
   room_host: string;
   room_status: string;
   game_modes: GameType[];
+  custom_sentences?: string[];
+  custom_questions?: { question: string; answer: string }[];
 }
 
 type PageState = 'loading' | 'playing' | 'claiming' | 'result' | 'done' | 'error';
@@ -58,6 +60,8 @@ export default function PlayPage({ params }: { params: Promise<{ code: string; p
           room_host: data.room.host_name,
           room_status: data.room.status,
           game_modes: data.room.game_modes || ['shake'],
+          custom_sentences: data.room.custom_sentences || [],
+          custom_questions: data.room.custom_questions || [],
         });
 
         if (player.shakes_used >= data.room.max_shakes) {
@@ -263,6 +267,8 @@ export default function PlayPage({ params }: { params: Promise<{ code: string; p
               <GameSelector
                 key={gameKey}
                 enabledGames={playerInfo.game_modes}
+                customSentences={playerInfo.custom_sentences}
+                customQuestions={playerInfo.custom_questions}
                 onComplete={handleGameComplete}
               />
             </div>

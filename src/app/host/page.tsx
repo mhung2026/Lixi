@@ -37,6 +37,11 @@ export default function HostPage() {
   const [mode, setMode] = useState<'online' | 'local'>('online');
   const [maxShakes, setMaxShakes] = useState(1);
   const [gameModes, setGameModes] = useState<GameType[]>(['shake']);
+  const [customSentences, setCustomSentences] = useState<string[]>([]);
+  const [newSentence, setNewSentence] = useState('');
+  const [customQuestions, setCustomQuestions] = useState<{ question: string; answer: string }[]>([]);
+  const [newQuestion, setNewQuestion] = useState('');
+  const [newAnswer, setNewAnswer] = useState('');
   const [prizes, setPrizes] = useState<PrizeItem[]>([
     newPrize({ name: 'Lì xì 100K', value: 100000, quantity: 3 }),
     newPrize({ name: 'Lì xì 50K', value: 50000, quantity: 5 }),
@@ -93,6 +98,8 @@ export default function HostPage() {
           mode,
           max_shakes: maxShakes,
           game_modes: gameModes.length > 0 ? gameModes : ['shake'],
+          custom_sentences: customSentences.length > 0 ? customSentences : null,
+          custom_questions: customQuestions.length > 0 ? customQuestions : null,
           prizes: prizes.map((p) => ({
             type: p.type,
             name: p.name.trim(),
@@ -109,6 +116,14 @@ export default function HostPage() {
       }
 
       const data = await res.json();
+
+      // Save to localStorage for "My Rooms" on landing page
+      try {
+        const myRooms = JSON.parse(localStorage.getItem('my_rooms') || '[]');
+        myRooms.unshift({ code: data.code, host_name: hostName.trim(), created_at: new Date().toISOString() });
+        localStorage.setItem('my_rooms', JSON.stringify(myRooms.slice(0, 20)));
+      } catch { /* ignore */ }
+
       router.push(`/room/${data.code}`);
     } catch {
       setError('Lỗi kết nối, thử lại sau');
@@ -256,6 +271,112 @@ export default function HostPage() {
             </div>
           </div>
         </div>
+
+        {/* Custom Scramble Sentences */}
+        {gameModes.includes('scramble') && (
+          <div className="glass-card rounded-2xl p-5">
+            <h2 className="text-amber-800 font-black text-lg mb-2">🔤 CÂU XẾP CHỮ</h2>
+            <p className="text-amber-400 text-xs mb-3">
+              Nhập câu chúc Tết để người chơi sắp xếp lại. Để trống sẽ dùng câu mặc định.
+            </p>
+            <div className="space-y-2 mb-3">
+              {customSentences.map((s, i) => (
+                <div key={i} className="flex items-center gap-2 bg-amber-50 rounded-xl py-2 px-3 border border-amber-100">
+                  <span className="flex-1 text-amber-900 text-sm font-medium">{s}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCustomSentences(customSentences.filter((_, idx) => idx !== i))}
+                    className="text-red-400 hover:text-red-600 text-sm font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="VD: Chúc Mừng Năm Mới"
+                value={newSentence}
+                onChange={(e) => setNewSentence(e.target.value)}
+                className="flex-1 py-2 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 placeholder-amber-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (newSentence.trim() && newSentence.trim().includes(' ')) {
+                    setCustomSentences([...customSentences, newSentence.trim()]);
+                    setNewSentence('');
+                  }
+                }}
+                className="py-2 px-4 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all active:scale-95"
+              >
+                + Thêm
+              </button>
+            </div>
+            <p className="text-amber-400 text-xs mt-1.5">Câu phải có ít nhất 2 từ</p>
+          </div>
+        )}
+
+        {/* Custom Quiz Questions */}
+        {gameModes.includes('quiz') && (
+          <div className="glass-card rounded-2xl p-5">
+            <h2 className="text-amber-800 font-black text-lg mb-2">❓ CÂU HỎI ĐỐ VUI</h2>
+            <p className="text-amber-400 text-xs mb-3">
+              Nhập câu hỏi và đáp án đúng. Người chơi nhập câu trả lời (không cần dấu). Để trống sẽ dùng câu hỏi mặc định.
+            </p>
+            <div className="space-y-2 mb-3">
+              {customQuestions.map((q, i) => (
+                <div key={i} className="bg-amber-50 rounded-xl py-2.5 px-3 border border-amber-100">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="text-amber-900 text-sm font-semibold">{q.question}</p>
+                      <p className="text-green-600 text-xs mt-0.5">Đáp án: {q.answer}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCustomQuestions(customQuestions.filter((_, idx) => idx !== i))}
+                      className="text-red-400 hover:text-red-600 text-sm font-bold mt-0.5"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Câu hỏi, VD: Năm 2026 là năm con gì?"
+                value={newQuestion}
+                onChange={(e) => setNewQuestion(e.target.value)}
+                className="w-full py-2 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 placeholder-amber-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Đáp án đúng, VD: Ngựa"
+                  value={newAnswer}
+                  onChange={(e) => setNewAnswer(e.target.value)}
+                  className="flex-1 py-2 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 placeholder-amber-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newQuestion.trim() && newAnswer.trim()) {
+                      setCustomQuestions([...customQuestions, { question: newQuestion.trim(), answer: newAnswer.trim() }]);
+                      setNewQuestion('');
+                      setNewAnswer('');
+                    }
+                  }}
+                  className="py-2 px-4 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all active:scale-95"
+                >
+                  + Thêm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Prize Pool Section */}
         <div className="glass-card rounded-2xl p-5">

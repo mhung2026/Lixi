@@ -5,7 +5,7 @@ import { generateRoomCode } from '@/lib/utils';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { host_name, host_phone, mode, max_shakes, game_modes, prizes } = body;
+    const { host_name, host_phone, mode, max_shakes, game_modes, custom_sentences, custom_questions, prizes } = body;
 
     if (!host_name || !prizes || prizes.length === 0) {
       return NextResponse.json({ error: 'Thiếu thông tin' }, { status: 400 });
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
         mode: mode || 'online',
         max_shakes: max_shakes || 1,
         game_modes: game_modes && game_modes.length > 0 ? game_modes : ['shake'],
+        custom_sentences: custom_sentences || [],
+        custom_questions: custom_questions || [],
         status: 'active',
       })
       .select()

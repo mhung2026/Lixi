@@ -4,19 +4,48 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { QUIZ_QUESTIONS, getRandomItem } from '@/lib/gameData';
 import type { QuizQuestion } from '@/lib/gameData';
 
+interface CustomQuestion {
+  question: string;
+  answer: string;
+}
+
 interface QuizGameProps {
+  customQuestions?: CustomQuestion[];
   onComplete: () => void;
+}
+
+/** Remove Vietnamese diacritics for comparison */
+function removeDiacritics(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .toLowerCase()
+    .trim();
 }
 
 const TIMER_SECONDS = 15;
 
-export default function QuizGame({ onComplete }: QuizGameProps) {
-  const [question] = useState<QuizQuestion>(() => getRandomItem(QUIZ_QUESTIONS));
+export default function QuizGame({ customQuestions, onComplete }: QuizGameProps) {
+  const useCustom = customQuestions && customQuestions.length > 0;
+
+  // Default mode: multiple choice
+  const [mcQuestion] = useState<QuizQuestion>(() => getRandomItem(QUIZ_QUESTIONS));
   const [selected, setSelected] = useState<number | null>(null);
+
+  // Custom mode: text input
+  const [customQ] = useState<CustomQuestion | null>(() =>
+    useCustom ? customQuestions[Math.floor(Math.random() * customQuestions.length)] : null
+  );
+  const [userAnswer, setUserAnswer] = useState('');
+  const [customAnswered, setCustomAnswered] = useState(false);
+  const [customCorrect, setCustomCorrect] = useState(false);
+
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const completeCalled = useRef(false);
 
-  // Stable callback so we don't re-trigger effects
+  const answered = useCustom ? customAnswered : selected !== null;
+
   const handleComplete = useCallback(() => {
     if (completeCalled.current) return;
     completeCalled.current = true;
@@ -25,49 +54,56 @@ export default function QuizGame({ onComplete }: QuizGameProps) {
 
   // Countdown timer
   useEffect(() => {
-    if (selected !== null) return; // stop ticking once answered
+    if (answered) return;
     if (timeLeft <= 0) {
-      // Time ran out — auto-pick nothing (treat as wrong)
-      setSelected(-1);
+      if (useCustom) {
+        setCustomAnswered(true);
+        setCustomCorrect(false);
+      } else {
+        setSelected(-1);
+      }
       handleComplete();
       return;
     }
     const id = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(id);
-  }, [timeLeft, selected, handleComplete]);
+  }, [timeLeft, answered, handleComplete, useCustom]);
 
+  // --- Default mode handlers ---
   const handleSelect = (index: number) => {
-    if (selected !== null) return; // already answered
+    if (selected !== null) return;
     setSelected(index);
     handleComplete();
   };
 
-  const isCorrect = selected === question.correct;
-  const answered = selected !== null;
+  const isCorrectMC = selected === mcQuestion.correct;
 
-  // Determine button styles per option
   const getOptionClass = (index: number) => {
-    const base =
-      'w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-300 border-2';
-
-    if (!answered) {
+    const base = 'w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-300 border-2';
+    if (selected === null) {
       return `${base} bg-amber-50 border-amber-200 text-amber-900 hover:bg-amber-100 hover:border-amber-400 active:scale-[0.98]`;
     }
-
-    // After answering
-    if (index === question.correct) {
+    if (index === mcQuestion.correct) {
       return `${base} bg-green-100 border-green-500 text-green-800`;
     }
-    if (index === selected && selected !== question.correct) {
+    if (index === selected && selected !== mcQuestion.correct) {
       return `${base} bg-red-100 border-red-500 text-red-800`;
     }
     return `${base} bg-amber-50/50 border-amber-100 text-amber-400`;
   };
 
-  // Timer bar width percentage
+  // --- Custom mode handler ---
+  const handleSubmitCustom = () => {
+    if (customAnswered || !customQ) return;
+    const correct = removeDiacritics(userAnswer) === removeDiacritics(customQ.answer);
+    setCustomCorrect(correct);
+    setCustomAnswered(true);
+    handleComplete();
+  };
+
+  // Timer bar
   const timerPercent = (timeLeft / TIMER_SECONDS) * 100;
-  const timerColor =
-    timeLeft > 10 ? 'bg-green-500' : timeLeft > 5 ? 'bg-amber-500' : 'bg-red-500';
+  const timerColor = timeLeft > 10 ? 'bg-green-500' : timeLeft > 5 ? 'bg-amber-500' : 'bg-red-500';
 
   return (
     <div className="flex flex-col gap-5 p-4">
@@ -87,53 +123,87 @@ export default function QuizGame({ onComplete }: QuizGameProps) {
         <span className="text-xl">❓</span>
       </div>
 
-      {/* Question */}
-      <h2 className="text-lg font-bold text-amber-900 leading-snug text-center">
-        {question.question}
-      </h2>
+      {/* ===== CUSTOM MODE: Text input ===== */}
+      {useCustom && customQ ? (
+        <>
+          <h2 className="text-lg font-bold text-amber-900 leading-snug text-center">
+            {customQ.question}
+          </h2>
 
-      {/* Options */}
-      <div className="flex flex-col gap-3">
-        {question.options.map((option, index) => (
-          <button
-            key={index}
-            disabled={answered}
-            onClick={() => handleSelect(index)}
-            className={getOptionClass(index)}
-          >
-            <span className="mr-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-200/60 text-amber-700 text-xs font-bold shrink-0">
-              {String.fromCharCode(65 + index)}
-            </span>
-            {option}
-          </button>
-        ))}
-      </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Nhập câu trả lời..."
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              disabled={customAnswered}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmitCustom()}
+              className="flex-1 py-3 px-4 rounded-xl bg-amber-50 border-2 border-amber-200 text-amber-900 placeholder-amber-300 font-medium text-center focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-60"
+              autoFocus
+            />
+            {!customAnswered && (
+              <button
+                onClick={handleSubmitCustom}
+                className="py-3 px-5 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition-all active:scale-95"
+              >
+                Gửi
+              </button>
+            )}
+          </div>
 
-      {/* Result message */}
-      {answered && (
-        <div
-          className={`text-center font-bold text-base mt-2 animate-[fadeIn_0.3s_ease-out] ${
-            selected === -1
-              ? 'text-amber-600'
-              : isCorrect
-                ? 'text-green-600'
-                : 'text-red-600'
-          }`}
-        >
-          {selected === -1 ? (
-            <p>
-              Hết giờ! Đáp án đúng là:{' '}
-              <span className="underline">{question.options[question.correct]}</span>
-            </p>
-          ) : isCorrect ? (
-            <p>Đúng rồi! 🎉</p>
-          ) : (
-            <p>
-              Sai rồi! Đáp án đúng là:{' '}
-              <span className="underline">{question.options[question.correct]}</span>
-            </p>
+          <p className="text-amber-400 text-xs text-center">Không cần nhập dấu</p>
+
+          {customAnswered && (
+            <div className={`text-center font-bold text-base mt-2 ${customCorrect ? 'text-green-600' : 'text-red-600'}`}>
+              {timeLeft === 0 && !userAnswer.trim() ? (
+                <p>Hết giờ! Đáp án: <span className="underline">{customQ.answer}</span></p>
+              ) : customCorrect ? (
+                <p>Đúng rồi! 🎉</p>
+              ) : (
+                <p>Sai rồi! Đáp án: <span className="underline">{customQ.answer}</span></p>
+              )}
+            </div>
           )}
-        </div>
+        </>
+      ) : (
+        /* ===== DEFAULT MODE: Multiple choice ===== */
+        <>
+          <h2 className="text-lg font-bold text-amber-900 leading-snug text-center">
+            {mcQuestion.question}
+          </h2>
+
+          <div className="flex flex-col gap-3">
+            {mcQuestion.options.map((option, index) => (
+              <button
+                key={index}
+                disabled={selected !== null}
+                onClick={() => handleSelect(index)}
+                className={getOptionClass(index)}
+              >
+                <span className="mr-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-200/60 text-amber-700 text-xs font-bold shrink-0">
+                  {String.fromCharCode(65 + index)}
+                </span>
+                {option}
+              </button>
+            ))}
+          </div>
+
+          {selected !== null && (
+            <div
+              className={`text-center font-bold text-base mt-2 ${
+                selected === -1 ? 'text-amber-600' : isCorrectMC ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {selected === -1 ? (
+                <p>Hết giờ! Đáp án đúng là: <span className="underline">{mcQuestion.options[mcQuestion.correct]}</span></p>
+              ) : isCorrectMC ? (
+                <p>Đúng rồi! 🎉</p>
+              ) : (
+                <p>Sai rồi! Đáp án đúng là: <span className="underline">{mcQuestion.options[mcQuestion.correct]}</span></p>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
