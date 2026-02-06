@@ -110,6 +110,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
 // ===== Game type definitions =====
 export const GAME_TYPES = [
   { id: 'shake', name: 'Lắc điện thoại', emoji: '📱', description: 'Lắc điện thoại thật mạnh' },
+  { id: 'shake-stick', name: 'Lắc que xin lộc', emoji: '🥢', description: 'Lắc hũ que như xin quẻ' },
   { id: 'scramble', name: 'Xếp chữ Tết', emoji: '🔤', description: 'Sắp xếp từ thành câu chúc Tết' },
   { id: 'quiz', name: 'Đố vui Tết', emoji: '❓', description: 'Trả lời câu hỏi về Tết' },
 ] as const;

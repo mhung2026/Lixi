@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260">
+  <!-- Red envelope background -->
+  <defs>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#B91C1C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#991B1B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Envelope body -->
+  <rect x="10" y="10" width="180" height="240" rx="16" fill="url(#redGrad)" stroke="#F59E0B" stroke-width="2"/>
+
+  <!-- Gold flap -->
+  <ellipse cx="100" cy="80" rx="95" ry="70" fill="#F59E0B"/>
+
+  <!-- Text "Lộc" -->
+  <text x="100" y="165" font-family="Arial, sans-serif" font-size="64" font-weight="900" fill="#F59E0B" text-anchor="middle">Lộc</text>
+</svg>

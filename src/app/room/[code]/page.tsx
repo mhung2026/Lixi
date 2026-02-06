@@ -77,6 +77,18 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
     }
   }
 
+  function isMobile() {
+    return /Android|iPhone|iPad/i.test(navigator.userAgent);
+  }
+
+  function payMoMo(playerPhone: string, amount: number) {
+    if (isMobile()) {
+      window.location.href = getMoMoLink(playerPhone, amount);
+    } else {
+      alert('Vui lòng mở bằng điện thoại để chuyển MoMo, hoặc bấm QR để quét mã');
+    }
+  }
+
   function openMoMoTransfer(playerPhone: string, playerName: string, amount: number) {
     const momoUrl = getMoMoLink(playerPhone, amount);
     setMomoQR({ url: momoUrl, playerName, amount });
@@ -223,14 +235,12 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
 
                     {canTransfer && isHost && (
                       <div className="flex gap-2 mt-2">
-                        <a
-                          href={getMoMoLink(playerPhone, prizeValue)}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => payMoMo(playerPhone, prizeValue)}
                           className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-pink-500 text-white font-bold text-xs hover:bg-pink-600 transition-all active:scale-95"
                         >
                           <span>💸</span> Chuyển MoMo {formatFullCurrency(prizeValue)}
-                        </a>
+                        </button>
                         <button
                           onClick={() => openMoMoTransfer(playerPhone, result.players?.name || '???', prizeValue)}
                           className="py-2 px-3 rounded-lg bg-pink-100 text-pink-600 font-bold text-xs hover:bg-pink-200 transition-all active:scale-95"
@@ -301,14 +311,18 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
               </p>
 
               <div className="space-y-2">
-                <a
-                  href={momoQR.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => {
+                    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                      window.location.href = momoQR.url;
+                    } else {
+                      alert('Vui lòng mở bằng điện thoại để chuyển MoMo');
+                    }
+                  }}
                   className="block w-full py-3 rounded-xl bg-pink-500 text-white font-black text-lg hover:bg-pink-600 transition-all active:scale-95"
                 >
                   Mở MoMo
-                </a>
+                </button>
                 <button
                   onClick={() => setMomoQR(null)}
                   className="block w-full py-2.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all"

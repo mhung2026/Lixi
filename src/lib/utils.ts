@@ -36,11 +36,11 @@ export function getShareUrl(code: string): string {
 
 /**
  * Generate MoMo deep link for transferring money
- * Format: https://nhantien.momo.vn/<phone>/<amount>
+ * Uses momo:// protocol to open MoMo app directly on mobile
  */
 export function getMoMoLink(phone: string, amount: number): string {
   const cleanPhone = phone.replace(/[^\d]/g, '');
-  return `https://nhantien.momo.vn/${cleanPhone}/${amount}`;
+  return `momo://transfer?phone=${cleanPhone}&amount=${amount}`;
 }
 
 /**
