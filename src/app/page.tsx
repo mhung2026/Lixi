@@ -152,7 +152,7 @@ export default function LandingPage() {
         href="/history"
         className="mt-8 text-red-200/60 text-sm hover:text-yellow-300 transition-colors font-medium"
       >
-        📜 Tra cứu lịch sử lì xì
+        📜 Tài khoản của tôi
       </Link>
 
       {/* Footer */}

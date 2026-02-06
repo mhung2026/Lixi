@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PrizeRow, { PrizeItem } from '@/components/PrizeRow';
 import { formatFullCurrency } from '@/lib/utils';
@@ -49,6 +49,16 @@ export default function HostPage() {
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-fill from localStorage
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('player_info') || '{}');
+      if (saved.name && !hostName) setHostName(saved.name);
+      if (saved.phone && !hostPhone) setHostPhone(saved.phone);
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const totalBudget = prizes.reduce((sum, p) => sum + (p.type === 'cash' ? p.value * p.quantity : 0), 0);
   const totalPrizes = prizes.reduce((sum, p) => sum + p.quantity, 0);
@@ -117,11 +127,13 @@ export default function HostPage() {
 
       const data = await res.json();
 
-      // Save to localStorage for "My Rooms" on landing page
+      // Save to localStorage
       try {
         const myRooms = JSON.parse(localStorage.getItem('my_rooms') || '[]');
         myRooms.unshift({ code: data.code, host_name: hostName.trim(), created_at: new Date().toISOString() });
         localStorage.setItem('my_rooms', JSON.stringify(myRooms.slice(0, 20)));
+        // Save player info (name + phone)
+        localStorage.setItem('player_info', JSON.stringify({ name: hostName.trim(), phone: hostPhone || '' }));
       } catch { /* ignore */ }
 
       router.push(`/room/${data.code}`);
