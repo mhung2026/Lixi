@@ -103,8 +103,16 @@ export default function LandingPage() {
         </button>
       </form>
 
+      {/* History Link */}
+      <Link
+        href="/history"
+        className="mt-8 text-red-200/60 text-sm hover:text-yellow-300 transition-colors font-medium"
+      >
+        📜 Tra cứu lịch sử lì xì
+      </Link>
+
       {/* Footer */}
-      <p className="mt-12 text-red-300/40 text-xs font-medium">
+      <p className="mt-6 text-red-300/40 text-xs font-medium">
         Chúc mừng năm mới 2026 🎆
       </p>
     </div>

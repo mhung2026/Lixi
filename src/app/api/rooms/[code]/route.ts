@@ -17,10 +17,6 @@ export async function GET(
     return NextResponse.json({ error: 'Phòng không tồn tại' }, { status: 404 });
   }
 
-  if (room.status === 'ended') {
-    return NextResponse.json({ error: 'Phòng đã kết thúc' }, { status: 410 });
-  }
-
   // Fetch prizes
   const { data: prizes } = await supabase
     .from('prizes')

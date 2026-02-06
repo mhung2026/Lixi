@@ -242,6 +242,14 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
           )}
         </div>
 
+        {/* Public Results Link */}
+        <Link
+          href={`/room/${code}/results`}
+          className="block w-full py-3 rounded-2xl gold-glass text-yellow-100 font-bold text-center transition-all hover:bg-yellow-500/20"
+        >
+          📋 Xem danh sách nhận lì xì
+        </Link>
+
         {/* End Room */}
         {room.status !== 'ended' && (
           <button
