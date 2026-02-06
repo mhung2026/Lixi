@@ -121,19 +121,20 @@ export default function HostPage() {
     <div className="min-h-dvh px-4 py-6">
       {/* Header */}
       <div className="text-center mb-6">
-        <Link href="/" className="text-red-200 text-sm hover:text-white transition-colors">
+        <Link href="/" className="text-red-200/60 text-sm hover:text-white transition-colors font-medium">
           ← Về trang chủ
         </Link>
-        <h1 className="text-2xl font-bold text-yellow-300 mt-2">
+        <h1 className="text-2xl font-black text-gold mt-2 tracking-tight">
           🧧 MỞ KHO LÌ XÌ
         </h1>
-        <p className="text-red-200 text-sm mt-1">Vui Tết Mê Ly</p>
+        <div className="gold-line w-32 mx-auto my-2" />
+        <p className="text-red-200/70 text-sm">Vui Tết Mê Ly</p>
       </div>
 
       <form onSubmit={handleCreate} className="max-w-lg mx-auto space-y-6">
         {/* Info Section */}
-        <div className="bg-white/95 rounded-2xl p-5 shadow-lg">
-          <h2 className="text-amber-800 font-bold text-lg mb-4">📋 THÔNG TIN</h2>
+        <div className="glass-card rounded-2xl p-5">
+          <h2 className="text-amber-800 font-black text-lg mb-4">📋 THÔNG TIN</h2>
 
           <div className="space-y-4">
             <div>
@@ -257,8 +258,8 @@ export default function HostPage() {
         </div>
 
         {/* Prize Pool Section */}
-        <div className="bg-white/95 rounded-2xl p-5 shadow-lg">
-          <h2 className="text-amber-800 font-bold text-lg mb-4">🎁 KHO LÌ XÌ</h2>
+        <div className="glass-card rounded-2xl p-5">
+          <h2 className="text-amber-800 font-black text-lg mb-4">🎁 KHO LÌ XÌ</h2>
 
           {/* Quick Chips */}
           <div className="flex flex-wrap gap-2 mb-4">
@@ -297,7 +298,7 @@ export default function HostPage() {
         </div>
 
         {/* Summary & Submit */}
-        <div className="bg-white/95 rounded-2xl p-5 shadow-lg">
+        <div className="glass-card rounded-2xl p-5">
           <div className="flex justify-between items-center mb-4">
             <div>
               <p className="text-amber-500 text-sm">Tổng ngân sách</p>
@@ -318,7 +319,7 @@ export default function HostPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl text-xl shadow-lg transition-all disabled:opacity-50 active:scale-95"
+            className="w-full btn-red py-4 rounded-2xl text-xl disabled:opacity-50"
           >
             {loading ? '⏳ ĐANG TẠO...' : '🧧 TẠO PHÒNG'}
           </button>

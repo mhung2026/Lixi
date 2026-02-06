@@ -41,19 +41,20 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8 text-center">
-      {/* Decorations */}
-      <div className="absolute top-4 left-4 text-4xl animate-float">🏮</div>
-      <div className="absolute top-4 right-4 text-4xl animate-float" style={{ animationDelay: '1s' }}>🏮</div>
-      <div className="absolute top-16 left-1/4 text-2xl animate-float" style={{ animationDelay: '0.5s' }}>🌸</div>
-      <div className="absolute top-20 right-1/4 text-2xl animate-float" style={{ animationDelay: '1.5s' }}>🌸</div>
+      {/* Floating blossoms */}
+      <div className="fixed top-16 left-[10%] text-2xl animate-float opacity-50 pointer-events-none" style={{ animationDelay: '0.5s' }}>🌸</div>
+      <div className="fixed top-24 right-[15%] text-xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '1.5s' }}>🌸</div>
+      <div className="fixed bottom-20 left-[20%] text-lg animate-float opacity-30 pointer-events-none" style={{ animationDelay: '2s' }}>✨</div>
+      <div className="fixed bottom-32 right-[10%] text-lg animate-float opacity-30 pointer-events-none" style={{ animationDelay: '0.8s' }}>✨</div>
 
-      {/* Logo / Title */}
-      <div className="mb-8">
-        <div className="text-6xl mb-4">🧧</div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 drop-shadow-lg mb-2">
+      {/* Logo / Envelope */}
+      <div className="mb-8 animate-scale-in">
+        <div className="lixi-envelope mx-auto mb-6 animate-float" />
+        <h1 className="text-3xl sm:text-4xl font-black text-gold drop-shadow-lg mb-2 tracking-tight">
           LẮC LỘC ĐẦU XUÂN
         </h1>
-        <p className="text-yellow-100 text-lg">
+        <div className="gold-line w-48 mx-auto my-3" />
+        <p className="text-red-100/80 text-lg font-medium">
           Sum Vầy - Tết 2026
         </p>
       </div>
@@ -61,16 +62,16 @@ export default function LandingPage() {
       {/* Create Room Button */}
       <Link
         href="/host"
-        className="w-full max-w-xs bg-yellow-500 hover:bg-yellow-400 text-red-900 font-bold py-4 px-8 rounded-2xl text-xl shadow-lg animate-pulse-glow transition-all hover:scale-105 mb-8 block text-center"
+        className="w-full max-w-xs btn-gold py-4 px-8 rounded-2xl text-xl animate-pulse-glow mb-8 block text-center"
       >
         ⭐ TẠO PHÒNG NGAY
       </Link>
 
       {/* Divider */}
       <div className="flex items-center gap-3 w-full max-w-xs mb-6">
-        <div className="flex-1 h-px bg-red-400/50" />
-        <span className="text-red-200 text-sm">hoặc tham gia phòng</span>
-        <div className="flex-1 h-px bg-red-400/50" />
+        <div className="flex-1 gold-line opacity-50" />
+        <span className="text-red-200/70 text-sm font-medium">hoặc tham gia</span>
+        <div className="flex-1 gold-line opacity-50" />
       </div>
 
       {/* Join Room Form */}
@@ -78,32 +79,32 @@ export default function LandingPage() {
         <div className={`relative mb-3 ${shakeError ? 'animate-error-shake' : ''}`}>
           <input
             type="text"
-            placeholder="Nhập mã phòng (VD: ABC123)"
+            placeholder="NHẬP MÃ PHÒNG"
             value={roomCode}
             onChange={(e) => {
               setRoomCode(e.target.value.toUpperCase());
               setError('');
             }}
             maxLength={6}
-            className="w-full py-3 px-4 rounded-xl bg-white/90 text-red-900 placeholder-red-300 font-semibold text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            className="w-full py-3.5 px-4 rounded-xl bg-white/95 text-red-900 placeholder-red-300/60 font-bold text-center text-xl tracking-[0.2em] focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-lg"
           />
         </div>
         {error && (
-          <p className="text-yellow-200 text-sm mb-3 bg-red-900/40 rounded-lg py-2 px-3">
+          <p className="text-yellow-200 text-sm mb-3 gold-glass rounded-lg py-2 px-3">
             {error}
           </p>
         )}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-white/20 hover:bg-white/30 backdrop-blur text-white font-bold py-3 px-8 rounded-xl text-lg transition-all border border-white/30 disabled:opacity-50"
+          className="w-full btn-red py-3.5 px-8 rounded-xl text-lg disabled:opacity-50"
         >
           {loading ? '⏳ Đang kiểm tra...' : '🚀 THAM GIA'}
         </button>
       </form>
 
       {/* Footer */}
-      <p className="mt-12 text-red-300/60 text-xs">
+      <p className="mt-12 text-red-300/40 text-xs font-medium">
         Chúc mừng năm mới 2026 🎆
       </p>
     </div>

@@ -34,8 +34,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-dvh bg-gradient-to-b from-red-700 via-red-600 to-red-800">
-          {children}
+        <div className="min-h-dvh tet-bg relative">
+          {/* Watermark */}
+          <div className="tet-watermark">LỘC</div>
+
+          {/* Decorative lanterns */}
+          <div className="fixed top-0 left-4 text-3xl sm:text-4xl animate-sway opacity-60 z-10 pointer-events-none" style={{ animationDelay: '0s' }}>🏮</div>
+          <div className="fixed top-0 right-4 text-3xl sm:text-4xl animate-sway opacity-60 z-10 pointer-events-none" style={{ animationDelay: '1s' }}>🏮</div>
+
+          {/* Content */}
+          <div className="relative z-10">
+            {children}
+          </div>
         </div>
       </body>
     </html>

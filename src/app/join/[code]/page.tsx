@@ -80,9 +80,9 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-dvh">
-        <div className="text-center">
-          <div className="text-5xl mb-4 animate-float">🧧</div>
-          <p className="text-yellow-200">Đang tải phòng...</p>
+        <div className="text-center animate-scale-in">
+          <div className="lixi-envelope mx-auto mb-6 animate-float" />
+          <p className="text-yellow-200/80 font-medium">Đang tải phòng...</p>
         </div>
       </div>
     );
@@ -91,10 +91,10 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   if (!roomInfo) {
     return (
       <div className="flex items-center justify-center min-h-dvh">
-        <div className="text-center">
+        <div className="text-center animate-scale-in">
           <div className="text-5xl mb-4">😢</div>
           <p className="text-yellow-200 text-lg mb-2">{error || 'Phòng không tồn tại'}</p>
-          <Link href="/" className="text-yellow-300 underline">Về trang chủ</Link>
+          <Link href="/" className="text-yellow-300 underline font-medium">Về trang chủ</Link>
         </div>
       </div>
     );
@@ -104,22 +104,23 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
 
   return (
     <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8">
-      {/* Room Info */}
-      <div className="bg-white/95 rounded-2xl p-6 shadow-lg max-w-sm w-full mb-6">
-        <div className="text-center mb-4">
-          <div className="text-4xl mb-2">🧧</div>
-          <h2 className="text-amber-800 font-bold text-xl">Phòng của {roomInfo.room.host_name}</h2>
-          <p className="text-amber-500 text-sm mt-1">
-            Mã: <span className="font-bold tracking-widest">{code}</span>
+      {/* Room Info Card */}
+      <div className="glass-card rounded-2xl p-6 max-w-sm w-full mb-6 animate-scale-in">
+        <div className="text-center mb-5">
+          <div className="lixi-envelope mx-auto mb-4" style={{ width: 100, height: 145 }} />
+          <h2 className="text-amber-800 font-black text-xl">Phòng của {roomInfo.room.host_name}</h2>
+          <p className="text-amber-500 text-sm mt-1 font-bold">
+            Mã: <span className="tracking-[0.2em]">{code}</span>
           </p>
-          <p className="text-amber-400 text-xs mt-1">
+          <div className="gold-line w-24 mx-auto my-3 opacity-50" />
+          <p className="text-amber-400 text-xs">
             {roomInfo.room.mode === 'online' ? '📱 Online' : '🤝 Local'} • {roomInfo.room.max_shakes} lần lắc • {totalPrizes} giải còn lại
           </p>
         </div>
 
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
-            <label className="block text-amber-700 text-sm font-semibold mb-1">Tên của bạn</label>
+            <label className="block text-amber-700 text-sm font-bold mb-1">Tên của bạn</label>
             <input
               type="text"
               placeholder="VD: Bé Heo 🐷"
@@ -129,12 +130,12 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
                 setError('');
               }}
               autoFocus
-              className="w-full py-3 px-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 placeholder-amber-300 text-center text-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full py-3 px-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 placeholder-amber-300 text-center text-lg font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
 
           <div>
-            <label className="block text-amber-700 text-sm font-semibold mb-1">
+            <label className="block text-amber-700 text-sm font-bold mb-1">
               SĐT MoMo <span className="font-normal text-amber-400">(không bắt buộc)</span>
             </label>
             <input
@@ -151,7 +152,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm bg-red-50 rounded-lg py-2 px-3 text-center">
+            <p className="text-red-500 text-sm bg-red-50 rounded-lg py-2 px-3 text-center font-medium">
               {error}
             </p>
           )}
@@ -159,14 +160,14 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           <button
             type="submit"
             disabled={joining}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl text-xl shadow-lg transition-all disabled:opacity-50 active:scale-95"
+            className="w-full btn-red py-4 rounded-2xl text-xl disabled:opacity-50"
           >
             {joining ? '⏳ Đang vào...' : '🎉 VÀO CHƠI'}
           </button>
         </form>
       </div>
 
-      <Link href="/" className="text-red-200 text-sm hover:text-white transition-colors">
+      <Link href="/" className="text-red-200/60 text-sm hover:text-white transition-colors font-medium">
         ← Về trang chủ
       </Link>
     </div>

@@ -32,7 +32,7 @@ export default function PlayPage({ params }: { params: Promise<{ code: string; p
   const [error, setError] = useState('');
   const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [gameKey, setGameKey] = useState(0); // used to remount GameSelector for new round
+  const [gameKey, setGameKey] = useState(0);
 
   // Fetch player info
   useEffect(() => {
@@ -82,7 +82,6 @@ export default function PlayPage({ params }: { params: Promise<{ code: string; p
     fetchInfo();
   }, [code, playerId]);
 
-  // Called when mini-game is completed → claim prize
   const handleGameComplete = useCallback(async () => {
     if (pageState === 'claiming' || pageState === 'result' || pageState === 'done') return;
     setPageState('claiming');
@@ -137,9 +136,9 @@ export default function PlayPage({ params }: { params: Promise<{ code: string; p
   if (pageState === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-dvh">
-        <div className="text-center">
-          <div className="text-5xl mb-4 animate-float">🧧</div>
-          <p className="text-yellow-200">Đang tải...</p>
+        <div className="text-center animate-scale-in">
+          <div className="lixi-envelope mx-auto mb-6 animate-float" />
+          <p className="text-yellow-200/80 font-medium">Đang tải...</p>
         </div>
       </div>
     );
@@ -149,119 +148,133 @@ export default function PlayPage({ params }: { params: Promise<{ code: string; p
   if (pageState === 'error') {
     return (
       <div className="flex items-center justify-center min-h-dvh px-4">
-        <div className="text-center">
+        <div className="text-center animate-scale-in">
           <div className="text-5xl mb-4">😢</div>
           <p className="text-yellow-200 text-lg mb-4">{error}</p>
-          <Link href="/" className="text-yellow-300 underline">Về trang chủ</Link>
+          <Link href="/" className="text-yellow-300 underline font-medium">Về trang chủ</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8 text-center relative overflow-hidden">
+    <div className="flex flex-col min-h-dvh relative overflow-hidden">
       <Confetti active={showConfetti} />
 
-      {/* Player info bar */}
-      <div className="absolute top-4 left-0 right-0 text-center">
-        <p className="text-red-200 text-sm">
-          Xin chào <span className="font-bold text-yellow-300">{playerInfo?.name}</span>
-        </p>
-        <p className="text-red-300/70 text-xs">
-          Phòng của {playerInfo?.room_host} • Lượt: {playerInfo?.shakes_used}/{playerInfo?.max_shakes}
-        </p>
+      {/* Top bar - like reference */}
+      <div className="flex items-start justify-between px-4 pt-4 pb-2">
+        <div>
+          <p className="text-yellow-400 font-black text-xl tracking-wider">{code}</p>
+          <p className="text-red-200/70 text-xs">Chủ xị: {playerInfo?.room_host}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-yellow-300 font-bold text-sm">{playerInfo?.name}</p>
+          <p className="text-red-200/60 text-xs">
+            Lượt: {playerInfo?.shakes_used}/{playerInfo?.max_shakes}
+          </p>
+        </div>
       </div>
 
-      {/* DONE STATE */}
-      {pageState === 'done' && (
-        <div className="space-y-6">
-          <div className="text-6xl mb-2">🎊</div>
-          {prize ? (
-            <div className="bg-white/95 rounded-2xl p-6 shadow-lg max-w-sm">
-              <p className="text-amber-500 text-sm mb-2">Bạn đã nhận được</p>
-              <div className="text-4xl mb-3">{prize.type === 'cash' ? '💰' : '🎁'}</div>
-              <p className="text-amber-900 font-bold text-2xl mb-1">{prize.name}</p>
+      <div className="gold-line opacity-30" />
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 text-center">
+
+        {/* DONE STATE */}
+        {pageState === 'done' && (
+          <div className="space-y-6 animate-scale-in">
+            <div className="text-6xl mb-2">🎊</div>
+            {prize ? (
+              <div className="glass-card rounded-2xl p-6 max-w-sm">
+                <p className="text-amber-500 text-sm mb-2 font-medium">Bạn đã nhận được</p>
+                <div className="text-5xl mb-3">{prize.type === 'cash' ? '💰' : '🎁'}</div>
+                <p className="text-amber-900 font-black text-2xl mb-1">{prize.name}</p>
+                {prize.type === 'cash' && prize.value > 0 && (
+                  <p className="text-amber-600 text-xl font-bold">{formatFullCurrency(prize.value)}</p>
+                )}
+              </div>
+            ) : (
+              <div className="glass-card rounded-2xl p-6 max-w-sm">
+                <p className="text-amber-700 font-semibold text-lg">
+                  {error || 'Bạn đã hết lượt chơi!'}
+                </p>
+              </div>
+            )}
+            <div className="space-y-3">
+              <Link
+                href={`/room/${code}`}
+                className="block gold-glass text-yellow-100 font-bold py-3 px-8 rounded-xl transition-all hover:bg-yellow-500/20"
+              >
+                📊 Xem kết quả phòng
+              </Link>
+              <Link href="/" className="block text-red-200/60 text-sm hover:text-white transition-colors">
+                ← Về trang chủ
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* RESULT STATE */}
+        {pageState === 'result' && prize && (
+          <div className="space-y-6 animate-scale-in">
+            <div className="animate-envelope-open">
+              <div className="lixi-envelope mx-auto" />
+            </div>
+            <div className="bg-gradient-to-b from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-2xl max-w-sm animate-bounce border-2 border-yellow-300">
+              <p className="text-red-800 text-sm font-black mb-2 tracking-wider">CHÚC MỪNG!</p>
+              <div className="text-5xl mb-3">{prize.type === 'cash' ? '💰' : '🎁'}</div>
+              <p className="text-red-900 font-black text-2xl mb-1">{prize.name}</p>
               {prize.type === 'cash' && prize.value > 0 && (
-                <p className="text-amber-600 text-lg">{formatFullCurrency(prize.value)}</p>
+                <p className="text-red-700 text-xl font-bold">{formatFullCurrency(prize.value)}</p>
               )}
             </div>
-          ) : (
-            <div className="bg-white/95 rounded-2xl p-6 shadow-lg max-w-sm">
-              <p className="text-amber-700 font-semibold text-lg">
-                {error || 'Bạn đã hết lượt chơi!'}
-              </p>
-            </div>
-          )}
-          <div className="space-y-3">
-            <Link
-              href={`/room/${code}`}
-              className="block bg-white/20 text-white font-bold py-3 px-8 rounded-xl border border-white/30 hover:bg-white/30 transition-all"
-            >
-              📊 Xem kết quả phòng
-            </Link>
-            <Link href="/" className="block text-red-200 text-sm hover:text-white transition-colors">
-              ← Về trang chủ
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* RESULT STATE */}
-      {pageState === 'result' && prize && (
-        <div className="space-y-6">
-          <div className="animate-envelope-open text-7xl mb-4">🧧</div>
-          <div className="bg-yellow-400/90 rounded-2xl p-6 shadow-2xl max-w-sm animate-bounce">
-            <p className="text-red-800 text-sm font-semibold mb-2">CHÚC MỪNG!</p>
-            <div className="text-5xl mb-3">{prize.type === 'cash' ? '💰' : '🎁'}</div>
-            <p className="text-red-900 font-black text-2xl mb-1">{prize.name}</p>
-            {prize.type === 'cash' && prize.value > 0 && (
-              <p className="text-red-700 text-xl font-bold">{formatFullCurrency(prize.value)}</p>
+            {playerInfo && playerInfo.shakes_used < playerInfo.max_shakes ? (
+              <button
+                onClick={handlePlayAgain}
+                className="btn-gold py-3 px-8 rounded-xl text-lg"
+              >
+                🔄 Chơi tiếp ({playerInfo.max_shakes - playerInfo.shakes_used} lượt còn lại)
+              </button>
+            ) : (
+              <button
+                onClick={() => setPageState('done')}
+                className="gold-glass text-yellow-100 font-bold py-3 px-8 rounded-xl transition-all hover:bg-yellow-500/20"
+              >
+                Xem kết quả →
+              </button>
             )}
           </div>
-          {playerInfo && playerInfo.shakes_used < playerInfo.max_shakes ? (
-            <button
-              onClick={handlePlayAgain}
-              className="bg-yellow-500 hover:bg-yellow-400 text-red-900 font-bold py-3 px-8 rounded-xl text-lg shadow-lg transition-all active:scale-95"
-            >
-              🔄 Chơi tiếp ({playerInfo.max_shakes - playerInfo.shakes_used} lượt còn lại)
-            </button>
-          ) : (
-            <button
-              onClick={() => setPageState('done')}
-              className="bg-white/20 text-white font-bold py-3 px-8 rounded-xl border border-white/30 hover:bg-white/30 transition-all"
-            >
-              Xem kết quả →
-            </button>
-          )}
-        </div>
-      )}
+        )}
 
-      {/* CLAIMING STATE */}
-      {pageState === 'claiming' && (
-        <div className="space-y-4">
-          <div className="text-7xl animate-float">🧧</div>
-          <p className="text-yellow-300 font-bold text-xl animate-pulse">Đang mở lì xì...</p>
-        </div>
-      )}
-
-      {/* PLAYING STATE - Mini Game */}
-      {pageState === 'playing' && playerInfo && (
-        <div className="w-full max-w-md">
-          <div className="bg-white/95 rounded-2xl p-5 shadow-lg">
-            <GameSelector
-              key={gameKey}
-              enabledGames={playerInfo.game_modes}
-              onComplete={handleGameComplete}
-            />
+        {/* CLAIMING STATE */}
+        {pageState === 'claiming' && (
+          <div className="space-y-6 animate-scale-in">
+            <div className="animate-float">
+              <div className="lixi-envelope mx-auto animate-shake" />
+            </div>
+            <p className="text-gold font-black text-xl animate-pulse tracking-wider">Đang mở lì xì...</p>
           </div>
+        )}
 
-          {error && (
-            <p className="text-yellow-200 text-sm bg-red-900/40 rounded-lg py-2 px-3 mt-4 text-center">
-              {error}
-            </p>
-          )}
-        </div>
-      )}
+        {/* PLAYING STATE - Mini Game */}
+        {pageState === 'playing' && playerInfo && (
+          <div className="w-full max-w-md animate-slide-up">
+            <div className="glass-card rounded-2xl p-5">
+              <GameSelector
+                key={gameKey}
+                enabledGames={playerInfo.game_modes}
+                onComplete={handleGameComplete}
+              />
+            </div>
+
+            {error && (
+              <p className="text-yellow-200 text-sm gold-glass rounded-lg py-2 px-3 mt-4 text-center">
+                {error}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
