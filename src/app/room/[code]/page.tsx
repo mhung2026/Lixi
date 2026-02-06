@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import { useRoom } from '@/hooks/useRoom';
 import { formatFullCurrency, getShareUrl, getMoMoLink, formatPhone } from '@/lib/utils';
 import { QRCodeSVG } from 'qrcode.react';
@@ -12,6 +12,18 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
   const [copied, setCopied] = useState(false);
   const [ending, setEnding] = useState(false);
   const [momoQR, setMomoQR] = useState<{ url: string; playerName: string; amount: number } | null>(null);
+  const [isHost, setIsHost] = useState(false);
+
+  // Check if current user is the host
+  useEffect(() => {
+    if (!room?.host_phone) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem('player_info') || '{}');
+      if (saved.phone && saved.phone === room.host_phone) {
+        setIsHost(true);
+      }
+    } catch { /* ignore */ }
+  }, [room?.host_phone]);
 
   if (loading) {
     return (
@@ -209,7 +221,7 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
                       </span>
                     </div>
 
-                    {canTransfer && (
+                    {canTransfer && isHost && (
                       <div className="flex gap-2 mt-2">
                         <a
                           href={getMoMoLink(playerPhone, prizeValue)}
@@ -229,7 +241,7 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
                       </div>
                     )}
 
-                    {isCash && prizeValue > 0 && !playerPhone && (
+                    {isHost && isCash && prizeValue > 0 && !playerPhone && (
                       <p className="text-amber-400 text-xs mt-1.5 italic">
                         Người chơi chưa nhập SĐT MoMo
                       </p>
@@ -249,8 +261,8 @@ export default function RoomPage({ params }: { params: Promise<{ code: string }>
           📋 Xem danh sách nhận lì xì
         </Link>
 
-        {/* End Room */}
-        {room.status !== 'ended' && (
+        {/* End Room - host only */}
+        {isHost && room.status !== 'ended' && (
           <button
             onClick={endRoom}
             disabled={ending}
